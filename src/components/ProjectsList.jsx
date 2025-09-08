@@ -1,48 +1,23 @@
 import React, { useState } from 'react'
 import { Plus, Search, MoreVertical, Play, Edit, Trash2, Copy } from 'lucide-react'
+import { useApp } from '../context/AppContext'
 
-const ProjectsList = ({ user }) => {
+const ProjectsList = () => {
+  const { state, actions } = useApp()
+  const { user, videos } = state
   const [searchTerm, setSearchTerm] = useState('')
   const [sortBy, setSortBy] = useState('recent')
 
-  const projects = [
-    {
-      id: 1,
-      name: 'Summer Sale Promo',
-      thumbnail: 'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=300&h=200&fit=crop',
-      lastModified: '2 hours ago',
-      duration: '30s',
-      status: 'completed',
-      platform: 'Instagram'
-    },
-    {
-      id: 2,
-      name: 'Product Tutorial',
-      thumbnail: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=300&h=200&fit=crop',
-      lastModified: '1 day ago',
-      duration: '2:15',
-      status: 'draft',
-      platform: 'YouTube'
-    },
-    {
-      id: 3,
-      name: 'Brand Story',
-      thumbnail: 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=300&h=200&fit=crop',
-      lastModified: '3 days ago',
-      duration: '1:45',
-      status: 'processing',
-      platform: 'TikTok'
-    },
-    {
-      id: 4,
-      name: 'Customer Testimonial',
-      thumbnail: 'https://images.unsplash.com/photo-1611224923853-80b023f02d71?w=300&h=200&fit=crop',
-      lastModified: '1 week ago',
-      duration: '45s',
-      status: 'completed',
-      platform: 'LinkedIn'
-    },
-  ]
+  // Transform videos to project format for display
+  const projects = videos.map(video => ({
+    id: video.videoId,
+    name: video.originalFilename?.replace(/\.[^/.]+$/, '') || 'Untitled Video',
+    thumbnail: 'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=300&h=200&fit=crop',
+    lastModified: new Date(video.updatedAt).toLocaleDateString(),
+    duration: '30s', // This would come from video metadata in production
+    status: video.status || 'draft',
+    platform: video.exportSettings?.platform || 'Unknown'
+  }))
 
   const filteredProjects = projects.filter(project =>
     project.name.toLowerCase().includes(searchTerm.toLowerCase())

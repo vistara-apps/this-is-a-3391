@@ -1,13 +1,10 @@
 import React, { useState } from 'react'
 import { Search, Bell, Settings, Crown, User } from 'lucide-react'
+import { useApp } from '../context/AppContext'
 
-const Navbar = ({ user, setUser }) => {
-  const [showUpgrade, setShowUpgrade] = useState(false)
-
-  const handleUpgrade = (tier) => {
-    setUser(prev => ({ ...prev, subscriptionTier: tier }))
-    setShowUpgrade(false)
-  }
+const Navbar = ({ onUpgradeClick }) => {
+  const { state, actions } = useApp()
+  const { user } = state
 
   return (
     <nav className="bg-gray-800 border-b border-gray-700 px-4 sm:px-6 h-16 flex items-center justify-between">
@@ -34,7 +31,7 @@ const Navbar = ({ user, setUser }) => {
       <div className="flex items-center space-x-4">
         {user.subscriptionTier === 'free' && (
           <button
-            onClick={() => setShowUpgrade(true)}
+            onClick={onUpgradeClick}
             className="bg-gradient-to-r from-purple-500 to-blue-500 text-white px-3 py-1.5 rounded-lg text-sm font-medium hover:opacity-90 transition-opacity flex items-center space-x-1"
           >
             <Crown className="w-4 h-4" />
@@ -63,29 +60,7 @@ const Navbar = ({ user, setUser }) => {
         </div>
       </div>
 
-      {showUpgrade && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-          <div className="bg-gray-800 rounded-xl p-6 max-w-md w-full">
-            <h3 className="text-xl font-bold mb-4">Upgrade Your Plan</h3>
-            <div className="space-y-4">
-              <div className="border border-gray-600 rounded-lg p-4 hover:border-blue-500 cursor-pointer" onClick={() => handleUpgrade('creator')}>
-                <h4 className="font-semibold text-blue-400">Creator - $19/month</h4>
-                <p className="text-sm text-gray-400">Full features, custom branding</p>
-              </div>
-              <div className="border border-gray-600 rounded-lg p-4 hover:border-purple-500 cursor-pointer" onClick={() => handleUpgrade('pro')}>
-                <h4 className="font-semibold text-purple-400">Pro - $49/month</h4>
-                <p className="text-sm text-gray-400">Higher quality, advanced analytics</p>
-              </div>
-            </div>
-            <button
-              onClick={() => setShowUpgrade(false)}
-              className="mt-4 w-full bg-gray-700 text-white py-2 rounded-lg hover:bg-gray-600"
-            >
-              Cancel
-            </button>
-          </div>
-        </div>
-      )}
+
     </nav>
   )
 }

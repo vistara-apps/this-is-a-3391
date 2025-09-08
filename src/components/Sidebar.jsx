@@ -1,7 +1,10 @@
 import React from 'react'
 import { Video, Layout, BarChart3, FolderOpen, Sparkles, Zap } from 'lucide-react'
+import { useApp } from '../context/AppContext'
 
-const Sidebar = ({ activeView, setActiveView }) => {
+const Sidebar = () => {
+  const { state, actions } = useApp()
+  const { activeView } = state
   const menuItems = [
     { id: 'editor', label: 'Video Editor', icon: Video },
     { id: 'templates', label: 'Templates', icon: Layout },
@@ -24,7 +27,7 @@ const Sidebar = ({ activeView, setActiveView }) => {
             return (
               <button
                 key={item.id}
-                onClick={() => setActiveView(item.id)}
+                onClick={() => actions.setActiveView(item.id)}
                 className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-left transition-colors ${
                   activeView === item.id
                     ? 'bg-blue-600 text-white'

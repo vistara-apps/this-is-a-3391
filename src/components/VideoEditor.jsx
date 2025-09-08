@@ -1,7 +1,13 @@
 import React, { useState } from 'react'
-import { Play, Pause, SkipBack, SkipForward, Download, Wand2, Scissors, Layers } from 'lucide-react'
+import { Play, Pause, SkipBack, SkipForward, Download, Wand2, Scissors, Layers, Upload } from 'lucide-react'
+import { useApp } from '../context/AppContext'
+import FileUpload from './FileUpload'
+import useVideoProcessing from '../hooks/useVideoProcessing'
 
-const VideoEditor = ({ user }) => {
+const VideoEditor = () => {
+  const { state, actions } = useApp()
+  const { user, currentVideo } = state
+  const { smartTrim, addAITransitions, autoEnhance, formatForPlatform } = useVideoProcessing()
   const [isPlaying, setIsPlaying] = useState(false)
   const [currentTime, setCurrentTime] = useState(0)
   const [duration] = useState(120) // 2 minutes
@@ -15,12 +21,45 @@ const VideoEditor = ({ user }) => {
   ]
 
   const handleAIProcess = async (tool) => {
+    if (!currentVideo) {
+      actions.setError('Please upload a video first')
+      return
+    }
+
     setIsProcessing(true)
     setSelectedTool(tool)
     
-    // Simulate AI processing
-    await new Promise(resolve => setTimeout(resolve, 3000))
-    setIsProcessing(false)
+    try {
+      let result
+      switch (tool) {
+        case 'trim':
+          result = await smartTrim(currentVideo.videoId, { originalDuration: duration })
+          break
+        case 'transitions':
+          result = await addAITransitions(currentVideo.videoId, { style: 'smooth' })
+          break
+        case 'enhance':
+          result = await autoEnhance(currentVideo.videoId)
+          break
+        default:
+          throw new Error('Unknown processing tool')
+      }
+      
+      // Update video with processing results
+      actions.updateVideo({
+        ...currentVideo,
+        analysisData: {
+          ...currentVideo.analysisData,
+          [tool]: result,
+        },
+        updatedAt: new Date().toISOString(),
+      })
+      
+    } catch (error) {
+      actions.setError(`AI processing failed: ${error.message}`)
+    } finally {
+      setIsProcessing(false)
+    }
   }
 
   const formatTime = (seconds) => {
@@ -35,17 +74,29 @@ const VideoEditor = ({ user }) => {
       <div className="flex-1 flex">
         {/* Video Preview */}
         <div className="flex-1 flex flex-col">
-          <div className="flex-1 bg-black relative flex items-center justify-center">
-            <div className="w-full max-w-4xl aspect-video bg-gray-800 rounded-lg flex items-center justify-center relative">
-              <div className="absolute inset-0 bg-gradient-to-br from-purple-600 via-blue-600 to-cyan-500 opacity-20 rounded-lg"></div>
-              <div className="text-center z-10">
-                <div className="w-16 h-16 bg-white bg-opacity-20 rounded-full flex items-center justify-center mb-4 mx-auto">
-                  {isPlaying ? <Pause className="w-8 h-8 text-white" /> : <Play className="w-8 h-8 text-white ml-1" />}
+          <div className="flex-1 bg-black relative flex items-center justify-center p-6">
+            {currentVideo ? (
+              <div className="w-full max-w-4xl aspect-video bg-gray-800 rounded-lg flex items-center justify-center relative">
+                <div className="absolute inset-0 bg-gradient-to-br from-purple-600 via-blue-600 to-cyan-500 opacity-20 rounded-lg"></div>
+                <div className="text-center z-10">
+                  <div className="w-16 h-16 bg-white bg-opacity-20 rounded-full flex items-center justify-center mb-4 mx-auto">
+                    {isPlaying ? <Pause className="w-8 h-8 text-white" /> : <Play className="w-8 h-8 text-white ml-1" />}
+                  </div>
+                  <p className="text-white text-lg">{currentVideo.originalFilename}</p>
+                  <p className="text-gray-300 text-sm mt-2">Ready for editing</p>
                 </div>
-                <p className="text-white text-lg">Video Preview</p>
-                <p className="text-gray-300 text-sm mt-2">Upload or select a template to start editing</p>
               </div>
-            </div>
+            ) : (
+              <div className="w-full max-w-4xl">
+                <FileUpload
+                  onUploadComplete={(video) => {
+                    actions.setCurrentVideo(video)
+                  }}
+                  acceptedTypes={['video/*']}
+                  maxSize={500 * 1024 * 1024} // 500MB
+                />
+              </div>
+            )}
           </div>
 
           {/* Video Controls */}

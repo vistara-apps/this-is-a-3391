@@ -1,14 +1,41 @@
 import React, { useState } from 'react'
 import { TrendingUp, Eye, Heart, Share, Clock, Target } from 'lucide-react'
+import { useApp } from '../context/AppContext'
 
-const AnalyticsDashboard = ({ user }) => {
+const AnalyticsDashboard = () => {
+  const { state, actions } = useApp()
+  const { user, analytics } = state
   const [timeRange, setTimeRange] = useState('7d')
 
   const metrics = [
-    { label: 'Total Views', value: '12.5K', change: '+15%', icon: Eye, color: 'text-blue-400' },
-    { label: 'Engagement Rate', value: '8.2%', change: '+2.1%', icon: Heart, color: 'text-red-400' },
-    { label: 'Shares', value: '324', change: '+23%', icon: Share, color: 'text-green-400' },
-    { label: 'Avg. Watch Time', value: '1:45', change: '+12s', icon: Clock, color: 'text-purple-400' },
+    { 
+      label: 'Total Views', 
+      value: analytics.metrics.totalViews ? `${(analytics.metrics.totalViews / 1000).toFixed(1)}K` : '0', 
+      change: '+15%', 
+      icon: Eye, 
+      color: 'text-blue-400' 
+    },
+    { 
+      label: 'Engagement Rate', 
+      value: analytics.metrics.engagementRate ? `${analytics.metrics.engagementRate}%` : '0%', 
+      change: '+2.1%', 
+      icon: Heart, 
+      color: 'text-red-400' 
+    },
+    { 
+      label: 'Shares', 
+      value: analytics.metrics.shares ? analytics.metrics.shares.toString() : '0', 
+      change: '+23%', 
+      icon: Share, 
+      color: 'text-green-400' 
+    },
+    { 
+      label: 'Avg. Watch Time', 
+      value: analytics.metrics.avgWatchTime ? `${Math.floor(analytics.metrics.avgWatchTime / 60)}:${(analytics.metrics.avgWatchTime % 60).toString().padStart(2, '0')}` : '0:00', 
+      change: '+12s', 
+      icon: Clock, 
+      color: 'text-purple-400' 
+    },
   ]
 
   const videoPerformance = [
