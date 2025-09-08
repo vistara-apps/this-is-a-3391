@@ -1,7 +1,10 @@
 import React, { useState } from 'react'
 import { Search, Filter, Play, Heart, Download } from 'lucide-react'
+import { useApp } from '../context/AppContext'
 
-const TemplateLibrary = ({ user }) => {
+const TemplateLibrary = () => {
+  const { state, actions } = useApp()
+  const { user, templates } = state
   const [selectedCategory, setSelectedCategory] = useState('all')
   const [searchTerm, setSearchTerm] = useState('')
 
@@ -13,62 +16,7 @@ const TemplateLibrary = ({ user }) => {
     { id: 'entertainment', name: 'Entertainment' },
   ]
 
-  const templates = [
-    {
-      id: 1,
-      name: 'TikTok Dance Challenge',
-      category: 'social',
-      thumbnail: 'https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=300&h=400&fit=crop',
-      duration: '15s',
-      isPremium: false,
-      likes: 234
-    },
-    {
-      id: 2,
-      name: 'Product Showcase',
-      category: 'business',
-      thumbnail: 'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=300&h=400&fit=crop',
-      duration: '30s',
-      isPremium: true,
-      likes: 567
-    },
-    {
-      id: 3,
-      name: 'Tutorial Intro',
-      category: 'education',
-      thumbnail: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=300&h=400&fit=crop',
-      duration: '10s',
-      isPremium: false,
-      likes: 123
-    },
-    {
-      id: 4,
-      name: 'Gaming Highlight',
-      category: 'entertainment',
-      thumbnail: 'https://images.unsplash.com/photo-1493711662062-fa541adb3fc8?w=300&h=400&fit=crop',
-      duration: '45s',
-      isPremium: true,
-      likes: 891
-    },
-    {
-      id: 5,
-      name: 'Instagram Story',
-      category: 'social',
-      thumbnail: 'https://images.unsplash.com/photo-1611224923853-80b023f02d71?w=300&h=400&fit=crop',
-      duration: '15s',
-      isPremium: false,
-      likes: 345
-    },
-    {
-      id: 6,
-      name: 'Company Intro',
-      category: 'business',
-      thumbnail: 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=300&h=400&fit=crop',
-      duration: '60s',
-      isPremium: true,
-      likes: 456
-    },
-  ]
+  // Templates are now loaded from context
 
   const filteredTemplates = templates.filter(template => {
     const matchesCategory = selectedCategory === 'all' || template.category === selectedCategory
